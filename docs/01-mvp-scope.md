@@ -21,13 +21,16 @@ A terminal-style web app where a user can view charts, ask market questions, gen
 Build a dark, premium, terminal-style landing page.  
   
 Landing page should include:  
-- logo / wordmark: Orion  
+- simple Orion logo mark and wordmark
 - headline  
 - subheadline  
-- CTA button: Launch Terminal  
+- CTA button: Enter Terminal or similar
 - secondary CTA: View Example Backtest  
-- product preview showing terminal + chart + metrics  
+- waitlist form backed by Supabase
+- atmospheric hero animation using subtle constellation/data-vector motion
+- product preview section showing terminal + chart + metrics after the hero
 - short feature sections  
+- visually present authentication entry point
 - disclaimer that Orion is for research and education, not financial advice  
   
 Landing page should not look like a generic AI SaaS page.  
@@ -39,10 +42,12 @@ Main app screen layout:
 - left panel: Orion AI terminal  
 - center panel: chart / backtest workspace  
 - right side: collapsible inspector drawer with icons  
+- bottom panel for code and strategy build output when active
   
 The terminal is the main command interface.  
   
 The chart area is the visual anchor.  
+When code generation or backtest output is active, that output may temporarily dominate the workspace, but normal chart views should remain chart-first.
   
 The inspector stores files, metrics, research, and assumptions.  
   
@@ -72,12 +77,16 @@ The center workspace should display a chart.
 MVP chart requirements:  
 - ticker search input  
 - default ticker: SPY  
-- candlestick or line chart  
+- default candlestick chart
+- visible volume
 - timeframe selector placeholder  
 - indicator overlay placeholder  
 - tabs for Price, Equity, Drawdown, Trades  
+- colorful and obvious trade markers when strategy results are shown
   
 The chart may use mock data at first, then connect to historical data later.  
+
+TradingView Lightweight Charts is the preferred financial chart rendering library, but it is not a market data API. Real historical chart values should come later from a historical data source such as yfinance or Stooq. Until then, mock or sample chart data must be clearly labeled.
   
 ### 5. Strategy Code Generation  
   
@@ -91,6 +100,7 @@ MVP support:
 - button: Run Backtest  
   
 The generated code can be template-based first.  
+Strategy generation should not automatically run a backtest. Orion should show the generated code/assumptions first and let the user explicitly choose a backtest action.
   
 Supported MVP strategy types:  
 - RSI mean reversion  
@@ -150,16 +160,27 @@ A simple library page should show:
 - saved research notes  
   
 This can be mock data in V1.  
+
+### 10. Authentication and Waitlist
+
+V1 should include Supabase-backed waitlist capture, authentication, and storage.
+
+Public pages should remain accessible without login:
+- landing page
+- example backtest or public demo pages
+- legal/disclaimer pages
+
+Private app pages should require authentication once they exist:
+- `/terminal`
+- `/library`
+- saved strategy, backtest, and research views
   
 ## V1 Nice-to-Have Features  
   
 These are useful but not required in the first build:  
   
 - real yfinance data  
-- real TradingView Lightweight Charts integration  
 - Monaco code editor  
-- simple user authentication  
-- Supabase storage  
 - strategy version history  
 - saved chat sessions  
 - simple blog page  
@@ -198,106 +219,189 @@ V1 should NOT include:
 - multi-user social features  
 - mobile app  
   
-## MVP Build Sequence  
-  
-### Phase 1: Static Landing Page  
-  
-Goal:  
-Create a polished landing page that communicates Orion clearly.  
-  
-Build:  
-- landing page  
-- dark visual system  
-- hero section  
-- product preview mock  
-- feature sections  
-- CTA  
-  
-Do not build backend yet.  
-  
-### Phase 2: Static App Shell  
-  
-Goal:  
-Create the terminal-style workspace layout.  
-  
-Build:  
-- left AI terminal  
-- center chart placeholder  
-- right collapsible inspector  
-- bottom/top navigation  
-- mock messages  
-- mock chart cards  
-- mock metrics  
-  
-No backend yet.  
-  
-### Phase 3: Interactive Frontend  
-  
-Goal:  
-Make the UI feel alive.  
-  
-Build:  
-- terminal input  
-- mock AI responses  
-- ticker switching  
-- inspector drawer interactions  
-- tabs for chart/backtest/code/research  
-- sample strategy file display  
-  
-### Phase 4: Chart Integration  
-  
-Goal:  
-Show real or mock financial charts.  
-  
-Build:  
-- chart component  
-- ticker search  
-- price chart  
-- entry/exit markers using mock strategy data  
-  
-### Phase 5: Strategy Generation  
-  
-Goal:  
-Describe strategy → generated code preview.  
-  
-Build:  
-- AI or mock AI strategy generation  
-- generated code file  
-- assumptions panel  
-- run backtest button  
-  
-### Phase 6: Backtest Engine  
-  
-Goal:  
-Run real simple backtests.  
-  
-Build:  
-- historical data fetch  
-- simple strategy execution  
-- metrics calculation  
-- equity/drawdown charts  
-  
-### Phase 7: Market Research Assistant  
-  
-Goal:  
-Ask market questions → research response.  
-  
-Build:  
-- market Q&A  
-- data/news retrieval later  
-- research note creation  
-- create basket/backtest from research  
-  
-### Phase 8: Library / Save System  
-  
-Goal:  
-Save outputs.  
-  
-Build:  
-- saved strategies  
-- saved backtests  
-- saved research notes  
-- basic profile/library view  
+## MVP Build Sequence
+
+### Phase 0: Project Initialization
+
+Goal:
+Initialize the Next.js app and development foundation.
+
+Build:
+- Next.js App Router project
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- Lucide React
+- lint/build scripts
+- basic env structure for Supabase and deployment
+
+Do not build product features yet.
+
+### Phase 1: Public Landing Page + Supabase Waitlist
+
+Goal:
+Create a polished, shareable landing page that communicates Orion clearly and captures real waitlist signups.
+
+Build:
+- landing page
+- dark visual system
+- hero section
+- selected Orion logo mark/wordmark
+- subtle Orion/constellation brand animation
+- product preview mock
+- feature sections
+- CTA and waitlist form
+- Supabase-backed waitlist storage
+- research-only disclaimer
+
+The landing page should be complete enough to publish before the terminal workspace exists.
+
+### Phase 2: Public Website Completion
+
+Goal:
+Finish the public-facing site before private app work.
+
+Build:
+- public example backtest or demo page if needed
+- reusable public layout/navigation
+- legal/disclaimer content
+- SEO and Open Graph basics
+- CTA paths that either collect waitlist signups or show public demo content
+
+Do not add paid plans, social features, broker integrations, or live trading promises.
+
+### Phase 3: Supabase Auth Gate
+
+Goal:
+Add authentication before building the terminal workspace.
+
+Build:
+- Supabase auth
+- login/signup routes
+- protected app route structure
+- basic user profile record
+
+Public pages should stay public. `/terminal` and `/library` should require auth once they exist.
+
+### Phase 4: Private Terminal Workspace Shell
+
+Goal:
+Create the terminal-style workspace layout for authenticated users.
+
+Build:
+- `/terminal` route
+- left AI terminal
+- center chart placeholder
+- right collapsible inspector
+- bottom/top navigation
+- mock messages
+- mock chart cards
+- mock metrics
+
+No real AI, real market data, or real backtesting yet.
+
+### Phase 5: Interactive Mock Terminal
+
+Goal:
+Make the private workspace feel alive using controlled mock flows.
+
+Build:
+- terminal input
+- mock AI responses
+- intent routing for research, strategy, and backtest-like prompts
+- artifact objects in client state
+- sample strategy file display
+- run backtest action that loads mock results
+
+### Phase 6: Chart Integration
+
+Goal:
+Render real chart components using mock OHLCV data first.
+
+Build:
+- TradingView Lightweight Charts component
+- ticker search
+- price chart
+- tabs for Price, Equity, Drawdown, Trades, Backtest
+- entry/exit markers using mock strategy data
+- Recharts components for simple equity/drawdown charts where useful
+
+### Phase 7: Persistence and Library
+
+Goal:
+Persist user-created artifacts after mock workflows exist.
+
+Build:
+- Supabase tables for strategies, backtests, research notes, and terminal sessions
+- `/library` route
+- save actions from terminal/backtest flows
+- user-scoped saved artifact views
+
+### Phase 8: Historical Market Data
+
+Goal:
+Connect real historical market data.
+
+Build:
+- historical data API route
+- yfinance or Stooq adapter
+- normalized OHLCV response shape
+- cache layer where useful
+- clear delayed/historical data language
+
+### Phase 9: Real Simple Backtesting Engine
+
+Goal:
+Run deterministic simple backtests.
+
+Build:
+- basic Python/FastAPI service or controlled server-side engine
+- daily OHLCV support
+- long-only strategy templates
+- fixed position sizing
+- fees/slippage assumptions
+- metrics calculation
+- equity/drawdown/trade outputs
+
+Do not execute arbitrary AI-generated code directly.
+
+### Phase 10: AI Integration
+
+Goal:
+Connect AI after deterministic app flows exist.
+
+Build:
+- AI-powered terminal responses
+- intent classification
+- constrained strategy generation
+- research summaries
+- safe code repair or refinement flow
+
+AI should not calculate final backtest metrics or provide financial advice.
+
+### Phase 11: Market Research Assistant
+
+Goal:
+Ask market questions and produce structured research responses.
+
+Build:
+- market Q&A
+- price/context retrieval where available
+- research note creation
+- suggested next actions such as opening charts or creating testable strategy ideas
+
+### Phase 12: Polish, QA, and Demo Readiness
+
+Goal:
+Stabilize the complete MVP.
+
+Build:
+- loading states
+- empty states
+- error states
+- deployment checks
+- setup README
+- final disclaimer pass
   
 ## Success Criteria  
   
