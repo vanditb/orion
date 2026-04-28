@@ -159,6 +159,19 @@ Orion should feel:
 - serious  
 - fast  
 - precise  
+- chart-first
+- finance/quant focused
+- like a modern coder workspace
+
+The brand should make Orion feel like an institutional terminal, a trading tool, and an AI coding workspace in one product. The Orion name should be a strong brand signal, but the product should use subtle astronomical cues only where they support the terminal/finance identity.
+
+## Brand Direction
+
+Orion is named after the constellation, so the product may use restrained Orion or constellation-inspired branding, motion, and visual details.
+
+These details should make the public site feel memorable and premium, but they should not overpower the fintech/quant identity. Orion should still feel like a serious trading research terminal first: dark, data-focused, chart-first, and precise.
+
+Use constellation-inspired visuals as a subtle brand layer, not as a cartoon, fantasy, or generic sci-fi theme. Avoid heavy starfields, playful space illustrations, or anything that makes the product feel less credible for trading research.
   
 It should not feel:  
 - like a generic AI chatbot  
@@ -166,6 +179,8 @@ It should not feel:
 - like a meme trading app  
 - like a get-rich-quick platform  
 - like a basic SaaS dashboard  
+- like a literal space app
+- like a copied Astral-style brand
   
 ## Positioning  
   
@@ -229,3 +244,9 @@ It should be built as:
 - something that can be shown to founders, internship targets, traders, and technical people  
   
 The goal is to build something real, useful, and impressive, without overbuilding it into a full trading platform immediately.  
+
+## Build Priority
+
+The first implementation surface is the public landing page and waitlist. The landing page should be complete enough to share publicly before the terminal workspace is built.
+
+The terminal workspace remains the core product proof, but it comes after the public site and authentication foundation. The private app should eventually be auth-gated, while public marketing and example pages remain accessible without login.
