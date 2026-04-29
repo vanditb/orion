@@ -1,8 +1,3 @@
-```
-
-technical-plan
-
-```md
 # Orion Technical Plan
 
 ## Technical Goal
@@ -30,7 +25,9 @@ Use:
 ### Backend
 
 Initial MVP:
-- Next.js API routes for simple mock endpoints
+- Next.js API routes for waitlist capture and simple mock endpoints
+- Supabase for waitlist, auth, user profiles, and persisted user artifacts
+- Vercel as the default deployment target
 
 Later backend:
 - FastAPI Python service for backtesting
@@ -38,8 +35,7 @@ Later backend:
 - numpy
 - yfinance or Stooq for historical OHLCV data
 - Python strategy execution engine
-- JSON-based strategy/result storage first
-- Supabase later for auth/database/storage
+- JSON-based strategy/result storage only if useful for local development
 
 ### AI Layer
 
@@ -71,6 +67,7 @@ MVP:
 - mock market data
 - static sample strategies
 - static research responses
+- Supabase-backed waitlist signups
 
 Next:
 - yfinance for historical prices
@@ -89,6 +86,8 @@ Do not promise real-time market data unless implemented.
 
 Use "delayed or historical market data" language.
 
+TradingView Lightweight Charts should be used for rendering financial charts, not as a market data API. Real price values must come from Orion's own historical data route or backend data adapter.
+
 ## Initial Repo Structure After App Initialization
 
 Codex should eventually create a structure similar to:
@@ -97,12 +96,29 @@ Codex should eventually create a structure similar to:
 orion/
   app/
     page.tsx
+    example-backtest/
+      page.tsx
+    login/
+      page.tsx
+    signup/
+      page.tsx
     terminal/
       page.tsx
     library/
       page.tsx
-    blog/
-      page.tsx
+    api/
+      waitlist/
+        route.ts
+      chat/
+        route.ts
+      generate-strategy/
+        route.ts
+      backtest/
+        route.ts
+      market-data/
+        route.ts
+      research/
+        route.ts
   components/
     layout/
       app-shell.tsx
@@ -178,6 +194,19 @@ orion/
 
 ```
 ## Data Models  
+## WaitlistSignup
+```
+
+type WaitlistSignup = {
+  id: string
+  email: string
+  source?: string
+  metadata?: Record<string, unknown>
+  createdAt: string
+}
+
+
+```
 ## User  
 ```
 
@@ -186,6 +215,20 @@ type User = {
   email?: string
   name?: string
   createdAt: string
+}
+
+
+```
+## Profile
+```
+
+type Profile = {
+  id: string
+  userId: string
+  email?: string
+  name?: string
+  createdAt: string
+  updatedAt: string
 }
 
 
@@ -317,54 +360,68 @@ type ResearchNote = {
 
 ```
 ## API Routes  
-Initial Next.js API routes:  
+Initial Next.js API routes:
+
+- `POST /api/waitlist`
+- `POST /api/chat`
+- `POST /api/generate-strategy`
+- `POST /api/backtest`
+- `GET /api/market-data`
+- `POST /api/research`
+
+### `POST /api/waitlist`
+
+Stores public landing page waitlist signups in Supabase.
+
+Input:
+```json
+{
+  "email": "user@example.com",
+  "source": "landing"
+}
 ```
 
-/api/chat
-/api/generate-strategy
-/api/backtest
-/api/market-data
-/api/research
-
-/api/chat
-
-```
-Handles general terminal messages.  
-Input:  
+Output:
+```json
+{
+  "ok": true
+}
 ```
 
+### `POST /api/chat`
+
+Handles general terminal messages.
+
+Input:
+```json
 {
   "message": "What is happening with NVDA today?",
   "sessionId": "session_123"
 }
-
-
-```
-Output:  
 ```
 
+Output:
+```json
 {
   "type": "research",
   "content": "...",
   "artifacts": []
 }
-
-/api/generate-strategy
-
-```
-Generates a strategy from natural language.  
-Input:  
 ```
 
+### `POST /api/generate-strategy`
+
+Generates or mocks a strategy from natural language.
+
+Input:
+```json
 {
   "prompt": "Build a mean reversion strategy for SPY using RSI and Bollinger Bands."
 }
-
-
-```
-Output:  
 ```
 
+Output:
+```json
 {
   "name": "SPY RSI Bollinger Mean Reversion",
   "description": "...",
@@ -372,78 +429,68 @@ Output:
   "assumptions": {},
   "missingFields": []
 }
-
-/api/backtest
-
-```
-Runs or mocks a backtest.  
-Input:  
 ```
 
+### `POST /api/backtest`
+
+Runs or mocks a backtest.
+
+Input:
+```json
 {
   "strategyId": "strategy_123",
   "ticker": "SPY",
   "startDate": "2020-01-01",
   "endDate": "2026-01-01"
 }
-
-
-```
-Output:  
 ```
 
+Output:
+```json
 {
   "metrics": {},
   "equityCurve": [],
   "drawdownCurve": [],
   "trades": []
 }
-
-/api/market-data
-
-```
-Returns OHLCV data.  
-Input:  
 ```
 
+### `GET /api/market-data`
+
+Returns historical OHLCV data. This route should not claim to provide real-time data unless real-time infrastructure has actually been implemented.
+
+Example query:
+```text
+/api/market-data?ticker=SPY&timeframe=1d
+```
+
+Output:
+```json
 {
   "ticker": "SPY",
-  "timeframe": "1d"
-}
-
-
-```
-Output:  
-```
-
-{
-  "ticker": "SPY",
+  "timeframe": "1d",
   "data": []
 }
-
-/api/research
-
-```
-Returns market research context.  
-Input:  
 ```
 
+### `POST /api/research`
+
+Returns market research context.
+
+Input:
+```json
 {
   "query": "Which companies benefit from lower rates?"
 }
-
-
-```
-Output:  
 ```
 
+Output:
+```json
 {
   "summary": "...",
   "tickers": [],
   "sources": []
 }
-
-
 ```
 ## Backtesting Engine Requirements  
 ## V1 Engine  
@@ -530,26 +577,46 @@ Later:
 * add unit tests for backtest metrics  
 * test strategy parsing  
 * test chart data formatting  
-## Build Phases for Codex  
-## Phase 1: Initialize Frontend and Landing Page  
-Create Next.js app with TypeScript and Tailwind. Build landing page only. No backend functionality.  
-## Phase 2: Static Terminal Workspace  
-Build /terminal route. Create app shell layout. Use mock data and mock terminal messages.  
-## Phase 3: Chart Workspace  
-Add chart component. Use mock OHLCV data first. Add ticker selector.  
-## Phase 4: Inspector Drawer  
-Add code, metrics, research, assumptions, and history drawers.  
-## Phase 5: Mock Strategy Generation  
-Terminal input creates mock strategy artifact. Show generated code and assumptions.  
-## Phase 6: Mock Backtest  
-Run button displays mock backtest result with charts and metrics.  
-## Phase 7: Real Market Data  
-Connect historical data source.  
-## Phase 8: Real Backtesting  
-Implement basic backtesting engine.  
-## Phase 9: AI Integration  
-Connect model provider for terminal and strategy generation.  
-## Phase 10: Persistence  
-Add saved strategies, research notes, and backtests.  
+## Build Phases for Codex
+
+## Phase 0: Project Initialization
+Initialize the Next.js App Router project with TypeScript, Tailwind CSS, shadcn/ui, Lucide React, lint/build scripts, and environment structure for Supabase and Vercel. Do not build product features yet.
+
+## Phase 1: Public Landing Page + Supabase Waitlist
+Build the complete public landing page with a polished Orion hero, product preview, feature sections, disclaimer, CTA, and Supabase-backed waitlist signup. This is the first public launch surface.
+
+## Phase 2: Public Website Completion
+Add public supporting pages such as an example backtest/demo page, legal/disclaimer content, reusable public navigation, and SEO/Open Graph basics. Do not add paid plans, social features, broker integrations, or live trading promises.
+
+## Phase 3: Supabase Auth Gate
+Add Supabase authentication, login/signup routes, protected app route structure, and a basic profile record. Public pages remain public. `/terminal` and `/library` require auth once they exist.
+
+## Phase 4: Private Terminal Workspace Shell
+Build the protected `/terminal` route with the three-pane app shell: left AI terminal, center chart/backtest workspace, and right collapsible inspector. Use mock messages, mock chart content, and mock metrics only.
+
+## Phase 5: Interactive Mock Terminal
+Add terminal input, controlled mock responses, basic intent routing, mock strategy artifacts, and a run-backtest action that loads mock results.
+
+## Phase 6: Chart Integration
+Add TradingView Lightweight Charts with mock OHLCV data first, ticker search, price/equity/drawdown/trades tabs, and mock entry/exit markers. Use Recharts for simple equity/drawdown views where useful.
+
+## Phase 7: Persistence and Library
+Persist strategies, backtests, research notes, and terminal sessions in Supabase. Add `/library` and user-scoped saved artifact views.
+
+## Phase 8: Historical Market Data
+Connect a historical data adapter such as yfinance or Stooq through Orion's backend/API route. Normalize OHLCV data for chart components and use delayed/historical data language.
+
+## Phase 9: Real Simple Backtesting Engine
+Implement deterministic simple backtesting using controlled strategy templates. Support daily OHLCV, single-ticker long-only strategies, fixed position sizing, fees/slippage, metrics, equity curve, drawdown curve, and trade list.
+
+## Phase 10: AI Integration
+Connect an AI provider for terminal responses, intent classification, constrained strategy generation, research summaries, and safe refinement. AI must not calculate final metrics or provide financial advice.
+
+## Phase 11: Market Research Assistant
+Add richer market research responses with structured summaries, related tickers, uncertainty, next actions, and research note creation.
+
+## Phase 12: Polish, QA, and Demo Readiness
+Add loading, empty, and error states; deployment checks; setup documentation; and a final disclaimer pass.
+
 ## Development Rule  
 Do not move to the next phase until the current phase builds successfully and looks clean.  
