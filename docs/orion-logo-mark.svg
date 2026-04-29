@@ -1,0 +1,15 @@
+<svg width="191" height="154" viewBox="0 0 191 154" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Orion logo mark</title>
+  <desc id="desc">A minimal indigo-violet Orion constellation mark with four connected nodes.</desc>
+  <defs>
+    <filter id="orion-mark-glow" x="34" y="13" width="112" height="132" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#5865F2" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+  <path d="M103 27L55 97L104 84L103 27" stroke="#6674FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" filter="url(#orion-mark-glow)"/>
+  <path d="M104 84L126 126" stroke="#8EA2FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" filter="url(#orion-mark-glow)"/>
+  <circle cx="103" cy="27" r="8" fill="#6674FF" filter="url(#orion-mark-glow)"/>
+  <circle cx="55" cy="97" r="8" fill="#5865F2" filter="url(#orion-mark-glow)"/>
+  <circle cx="104" cy="84" r="8" fill="#6674FF" filter="url(#orion-mark-glow)"/>
+  <circle cx="126" cy="126" r="8" fill="#8EA2FF" filter="url(#orion-mark-glow)"/>
+</svg>
