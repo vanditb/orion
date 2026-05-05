@@ -1,0 +1,1 @@
+export default function Home() {\n  return null;\n}\n
