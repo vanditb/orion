@@ -1,0 +1,1 @@
+export function WaitlistForm() {\n  return null;\n}\n
